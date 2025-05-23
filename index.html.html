@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>San Diego 지혜 척도</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 15px;
+      line-height: 1.6;
+    }
+    h1, h2 { text-align: center; }
+    .question { margin: 20px 0; }
+    .question label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 5px;
+      gap: 8px;
+    }
+    .options label {
+      flex: 1 1 calc(50% - 10px);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      font-size: 0.9em;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #f9f9f9;
+    }
+    .options input {
+      margin-right: 8px;
+    }
+    .page { display: none; }
+    .visible { display: block; }
+    button {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 1.1em;
+      text-align: center;
+      font-weight: bold;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <h1>San Diego 지혜 척도</h1>
+  <div id="intro" class="visible">
+    <h2>검사 안내</h2>
+    <p>이 검사는 개인의 지혜 수준을 측정하기 위한 목적으로 개발되었습니다. 지혜는 자기반성, 감정 조절, 다양한 관점 수용, 친사회적 행동, 사회적 조언, 결단력, 영성의 7가지 영역으로 구성되며, 정신건강 및 웰빙과 밀접한 관련이 있습니다.</p>
+    <p>각 문항에 대해 자신에게 가장 잘 맞는 정도를 선택해 주세요. 총 28문항이며, 7문항씩 4단계에 걸쳐 진행됩니다.</p>
+    <button onclick="startSurvey()">검사 시작</button>
+  </div>
+
+  <div id="wisdomForm"></div>
+  <div id="result"></div>
+
+<script>
+const questions = [
+  { num: 1, text: "나는 내 행동의 이유를 이해하려고 노력한다.", category: "자기반성" },
+  { num: 2, text: "나는 결정을 내리는 데 어려움을 겪는다.", reverse: true, category: "결단력" },
+  { num: 3, text: "죽음 이후에는 영혼의 존재가 없다.", reverse: true, category: "영성" },
+  { num: 4, text: "다른 사람들이 선택을 하는 데 도움을 받기 위해 나를 찾는다.", category: "사회적 조언" },
+  { num: 5, text: "나의 영적 믿음이 내적 힘을 준다.", category: "영성" },
+  { num: 6, text: "화가 났을 때 명확하게 생각하는 데 어려움을 겪는다.", reverse: true, category: "감정조절" },
+  { num: 7, text: "다른 사람들이 내가 좋은 조언을 한다고 말한다.", category: "사회적 조언" },
+  { num: 8, text: "나는 대개 적절한 시기에 결정을 내린다.", category: "결단력" },
+  { num: 9, text: "나는 압박을 받는 상황에서도 침착함을 유지한다.", category: "감정조절" },
+  { num: 10, text: "나는 다른 문화에 대해 배우는 것을 즐긴다.", category: "다양한 관점 수용" },
+  { num: 11, text: "나는 중요한 결정을 가능한 한 오래 미루는 경향이 있다.", reverse: true, category: "결단력" },
+  { num: 12, text: "나는 내 결정이 다른 사람들에게 어떤 영향을 미치는지 생각한다.", category: "자기반성" },
+  { num: 13, text: "사람들이 조언을 구하러 올 때 무슨 말을 해야 할지 모르는 경우가 많다.", reverse: true, category: "사회적 조언" },
+  { num: 14, text: "나는 다른 사람들이 나와 다른 도덕과 가치관을 가지는 것을 괜찮게 생각한다.", category: "다양한 관점 수용" },
+  { num: 15, text: "나는 부정적인 감정에 압도당하는 경향이 있다.", reverse: true, category: "감정조절" },
+  { num: 16, text: "나는 종종 내가 왜 그런 식으로 행동했는지 생각한다.", category: "자기반성" },
+  { num: 17, text: "확실하지 않을 때는 다른 사람이 나를 대신해 결정해 주었으면 한다.", reverse: true, category: "결단력" },
+  { num: 18, text: "나는 도움이 필요할 것을 알면서도 그런 상황을 피한다.", reverse: true, category: "친사회적 행동" },
+  { num: 19, text: "나는 내 감정을 성찰하려고 노력한다.", category: "자기반성" },
+  { num: 20, text: "나는 일반적으로 만나는 모든 사람에게서 무언가를 배운다.", category: "다양한 관점 수용" },
+  { num: 21, text: "나는 다양한 관점에 노출되는 것을 즐긴다.", category: "다양한 관점 수용" },
+  { num: 22, text: "나는 스트레스를 잘 처리한다.", category: "감정조절" },
+  { num: 23, text: "나는 다른 사람들에게 현명한 조언을 할 수 있다.", category: "사회적 조언" },
+  { num: 24, text: "나는 다른 사람들을 돕는 것을 즐긴다.", category: "친사회적 행동" },
+  { num: 25, text: "우리는 모두 더 높은 차원에서 연결되어 있다고 느낀다.", category: "영성" },
+  { num: 26, text: "나는 다른 사람들의 고통을 쉽게 무시할 수 있다.", reverse: true, category: "친사회적 행동" },
+  { num: 27, text: "삶에는 전체적인 목적이 없다.", reverse: true, category: "영성" },
+  { num: 28, text: "나는 덜 운이 좋은 사람들을 돕기 위해 시간을 할애한다.", category: "친사회적 행동" }
+];
+
+function startSurvey() {
+  document.getElementById('intro').style.display = 'none';
+  buildPages();
+  showPage(0);
+}
+
+function buildPages() {
+  const form = document.getElementById('wisdomForm');
+  for (let p = 0; p < 4; p++) {
+    const page = document.createElement('div');
+    page.className = 'page';
+    page.id = `page${p}`;
+    const start = p * 7;
+    const end = start + 7;
+    questions.slice(start, end).forEach(q => {
+      const div = document.createElement('div');
+      div.className = 'question';
+      const label = document.createElement('label');
+      label.innerText = `문항 ${q.num}: ${q.text}`;
+      div.appendChild(label);
+
+      const options = document.createElement('div');
+      options.className = 'options';
+
+      ["전혀 그렇지 않다","약간 그렇지 않다","보통이다","약간 그렇다","매우 그렇다"].forEach((desc, i) => {
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = `q${q.num}`;
+        input.value = i + 1;
+        input.required = true;
+        const optLabel = document.createElement('label');
+        optLabel.innerText = desc;
+        optLabel.insertBefore(input, optLabel.firstChild);
+        options.appendChild(optLabel);
+      });
+
+      div.appendChild(options);
+      page.appendChild(div);
+    });
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.innerText = p === 3 ? '제출하기' : '다음';
+    btn.onclick = () => {
+      if (validatePage(p)) {
+        if (p === 3) {
+          calculateResult();
+        } else {
+          showPage(p + 1);
+        }
+      }
+    };
+    page.appendChild(btn);
+    form.appendChild(page);
+  }
+}
+
+function showPage(index) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+  const current = document.getElementById(`page${index}`);
+  if (current) current.classList.add('visible');
+}
+
+function validatePage(index) {
+  const page = document.getElementById(`page${index}`);
+  const inputs = page.querySelectorAll('input[type="radio"]');
+  const names = [...new Set([...inputs].map(i => i.name))];
+  return names.every(name => page.querySelector(`input[name="${name}"]:checked`));
+}
+
+function calculateResult() {
+  let total = 0;
+  let counts = {};
+  let scores = {};
+  questions.forEach(q => {
+    const val = parseInt(document.querySelector(`input[name=q${q.num}]:checked`).value);
+    const score = q.reverse ? 6 - val : val;
+    total += score;
+    counts[q.category] = (counts[q.category] || 0) + 1;
+    scores[q.category] = (scores[q.category] || 0) + score;
+  });
+  const avg = (total / 28).toFixed(2);
+  let summary = `당신의 총 지혜 점수는 ${total}점입니다.\n평균 점수는 ${avg}점입니다.\n\n[영역별 점수]\n`;
+
+  function level(value) {
+    if (value < 2.5) return "낮음";
+    if (value < 3.5) return "보통";
+    return "높음";
+  }
+
+  for (const cat in scores) {
+    const catAvg = (scores[cat] / counts[cat]).toFixed(2);
+    summary += `${cat}: ${scores[cat]}점 (평균 ${catAvg}) → ${level(catAvg)}\n`;
+  }
+
+  summary += "\n[종합 평가]\n";
+  if (avg < 2.5) {
+    summary += "지혜 점수가 낮은 편입니다. 자기 성찰과 감정 조절을 통해 마음의 여유를 키워보세요. 일상 속 작은 친절과 타인의 조언에 귀 기울이는 태도도 도움이 됩니다.";
+  } else if (avg < 3.5) {
+    summary += "평균적인 지혜 점수입니다. 다양한 사람들과의 관계 속에서 더 넓은 시야를 갖는 노력을 이어가면 좋습니다.";
+  } else {
+    summary += "높은 지혜 점수를 보이고 있습니다. 당신의 성찰력, 포용력, 사회적 감수성은 타인에게도 긍정적 영향을 줄 수 있습니다. 계속해서 이 태도를 유지해 보세요.";
+  }
+
+  document.getElementById('wisdomForm').style.display = 'none';
+  document.getElementById('result').innerText = summary;
+}
+</script>
+</body>
+</html>
