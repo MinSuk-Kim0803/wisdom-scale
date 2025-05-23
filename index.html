@@ -2,18 +2,64 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>San Diego 지혜 척도</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 30px auto; line-height: 1.6; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 15px;
+      line-height: 1.6;
+    }
     h1, h2 { text-align: center; }
     .question { margin: 20px 0; }
     .question label { display: block; margin-bottom: 5px; font-weight: bold; }
-    .options { display: flex; justify-content: space-between; margin-top: 5px; }
-    .options label { display: flex; flex-direction: column; align-items: center; font-size: 0.9em; white-space: pre-line; }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 5px;
+      gap: 8px;
+    }
+    .options label {
+      flex: 1 1 calc(50% - 10px);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      font-size: 0.9em;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #f9f9f9;
+    }
+    .options input {
+      margin-right: 8px;
+    }
     .page { display: none; }
     .visible { display: block; }
-    button { display: block; margin: 30px auto; padding: 10px 20px; font-size: 1em; }
-    #result { margin-top: 30px; font-size: 1.2em; text-align: center; font-weight: bold; white-space: pre-line; }
+    button {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 1.1em;
+      text-align: center;
+      font-weight: bold;
+      white-space: pre-line;
+    }
   </style>
 </head>
 <body>
@@ -25,7 +71,6 @@
     <button onclick="startSurvey()">검사 시작</button>
   </div>
 
-  <!-- 수정된 부분: form → div -->
   <div id="wisdomForm"></div>
   <div id="result"></div>
 
